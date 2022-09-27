@@ -1,0 +1,54 @@
+/* Query 1 - Used to get the top 5 genre based on units sold. */
+SELECT
+  g.name AS genre,
+  COUNT(*) AS units_sold
+FROM track t
+JOIN genre g
+  ON t.genreid = g.genreid
+JOIN invoiceline il
+  ON il.trackid = t.trackid
+GROUP BY 1
+ORDER BY 2 DESC
+LIMIT 5
+
+
+/* Query 2 - Used to get the top 10 country based on total value os sales. */
+SELECT country,            
+            COUNT(DISTINCT(c.customerid)) AS number_of_customers,
+            COUNT(DISTINCT(i.invoiceid)) AS number_of_orders,
+            SUM(i.total) AS total_value_of_sales
+FROM customer AS c
+INNER JOIN invoice AS i 
+ON c.customerid = i.customerid
+GROUP BY country
+ORDER BY 4 DESC
+LIMIT 10
+
+
+
+/* Query 3 - Used to get the most  sale of media type. */
+SELECT m.name media_type,
+	   SUM(quantity) AS total_qty
+FROM mediatype m
+JOIN track t
+  ON t.mediatypeid = m.mediatypeid
+JOIN invoiceline il
+  ON il.trackid = t.trackid
+GROUP BY 1
+ORDER BY 2 DESC 
+
+
+
+/* Query 4 - Used to get which agent has the most sales. */
+SELECT
+  strftime('%Y-%m',e.hiredate) hire_date,
+  e.firstname|| ' ' ||e.lastname rep,
+  COUNT(i.invoiceid) number_of_sale,
+  ROUND(SUM(i.total), 2) value_of_sale
+FROM employee e
+JOIN customer c
+  ON c.supportrepid = e.employeeid
+JOIN invoice i
+  ON i.customerid = c.customerid
+WHERE title = 'Sales Support Agent'
+GROUP BY 1,2
